@@ -1,0 +1,30 @@
+FCC_CHECK := $(shell command -v FCC > /dev/null 2>&1 && echo "FOUND" || echo "NOT FOUNT")
+FCCpx_CHECK := $(shell command -v FCCpx > /dev/null 2>&1 && echo "FOUND" || echo "NOT FOUNT")
+aarch64-linux-gnu-g++-12_CHECK := $(shell command -v aarch64-linux-gnu-g++-12 > /dev/null 2>&1 && echo "FOUND" || echo "NOT FOUNT")
+g++_CHECK := $(shell command -v g++ > /dev/null 2>&1 && echo "FOUND" || echo "NOT FOUNT")
+
+ifeq ($(CHECK_CMD),FOUND)
+    LIB_BLAS=-lfjlapackexsve_ilp64 -SSL2
+    INC_BLAS=-I${LANG_DIR}/include/lapack_ilp64
+else ifeq ($(FCCpx_CHECK),FOUND)
+    LIB_BLAS=-lfjlapackexsve_ilp64 -SSL2
+    INC_BLAS=-I${LANG_DIR}/include/lapack_ilp64
+else ifeq ($(aarch64-linux-gnu-g++-12_CHECK),FOUND)
+    LIB_BLAS=-L ~/local/openblas_arm/lib -lopenblas
+    INC_BLAS=-I ~/local/openblas_arm/include
+else ifeq ($(g++_CHECK,FOUND))
+    LIB_BLAS=-L ~/local/openblas_arm/lib -lopenblas
+    INC_BLAS=-I ~/local/openblas_arm/include
+endif
+
+
+#LIB_BLAS=-L ~/local/openblas_arm/lib -lopenblas
+#INC_BLAS=-I ~/local/openblas_arm/include
+
+#LIB_BLAS=-L ~/local/openblas_intel/lib -lopenblas
+#INC_BLAS=-I ~/local/openblas_intel/include
+
+# FJ
+#LIB_BLAS=-lfjlapackexsve_ilp64 -SSL2
+#INC_BLAS=-I${LANG_PATH}/include/lapack_ilp64
+

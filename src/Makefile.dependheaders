@@ -1,0 +1,31 @@
+
+HPPSRCS = $(wildcard ../../../../include/*.hpp) \
+		$(wildcard ../../../../src/include/*.hpp) \
+		$(wildcard ../../../../src/include/asm/*.hpp) \
+		$(wildcard ../../../../src/include/asm//GENERIC/*.hpp) \
+		$(wildcard ../../../../src/include/asm//SVE/*.hpp) \
+		$(wildcard ../../../../src/include/ACopy/*.hpp) \
+		$(wildcard ../../../../src/include/BCopy/*.hpp) \
+		$(wildcard ../../../../src/include/CScale/*.hpp) \
+		$(wildcard ../../../../src/include/GemmCore/*.hpp) \
+		$(wildcard ../../../../src/include/Impl/GemmBatchedEx/*.hpp) \
+		$(wildcard ../../../../src/include/Impl/GemmBatchedEx/launch_kernels/*.hpp) \
+		$(wildcard ../../../../src/include/Impl/GemmEx/*.hpp) \
+		$(wildcard ../../../../src/include/Runner/*.hpp) \
+		$(wildcard ../../../../src/include/Launcher/*.hpp) \
+		$(wildcard ../../../../src/include/Utils/*.hpp) 
+		
+HSRCS = $(wildcard ../../../../include/*.h) \
+		$(wildcard ../../../../src/include/*.h) \
+		$(wildcard ../../../../src/include/asm/*.h) \
+		$(wildcard ../../../../src/include/asm//GENERIC/*.h) \
+		$(wildcard ../../../../src/include/asm//SVE/*.h) \
+		$(wildcard ../../../../src/include/ACopy/*.h) \
+		$(wildcard ../../../../src/include/BCopy/*.h) \
+		$(wildcard ../../../../src/include/CScale/*.h) \
+		$(wildcard ../../../../src/include/GemmCore/*.h) \
+		$(wildcard ../../../../src/include/Impl/GemmBatchedEx/*.h) \
+		$(wildcard ../../../../src/include/Impl/GemmEx/*.h) \
+		$(wildcard ../../../../src/include/Runner/*.h) \
+		$(wildcard ../../../../src/include/Launcher/*.h) \
+		$(wildcard ../../../../src/include/Utils/*.h) 

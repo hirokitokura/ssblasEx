@@ -1,0 +1,10 @@
+#ifndef SSBLAS_LAUNCH_KERNELS_HEADER
+#define SSBLAS_LAUNCH_KERNELS_HEADER
+
+#include"ssblasGemmBatchedEx_Batchgemm_tune_kernel_BMKN.hpp"
+#include"ssblasGemmBatchedEx_Batchgemm_tune_kernel_BNKM.hpp"
+#include"ssblasGemmBatchedEx_Batchgemm_single_kernel_BMNK.hpp"
+
+#endif
+
+
