@@ -116,17 +116,89 @@ void Xgemm_ncopy_sve_v1_pack4(
     const INDEXINT ldbl
 )
 {
-    for(int j=0;j<remainN;j++){
-        for(int i=0;i<remainK;i+=4){
-            ssblaschar4 tmp;
-            tmp.x=B[(i+0)+j*ldb];
-            tmp.y=i+1<remainK?B[(i+1)+j*ldb]:0;
-            tmp.z=i+2<remainK?B[(i+2)+j*ldb]:0;
-            tmp.w=i+3<remainK?B[(i+3)+j*ldb]:0;
-
-            Blocal[i/4+j*ldbl]=tmp;
-        }
+  constexpr INDEXINT PACK_SIZE=sizeof(DEF_DOUBLE_C)/sizeof(DEF_DOUBLE_AB);
+  const INDEXINT nvl=ssblasGemmBatchedEx_SIMDLENGTH<INDEXINT,DEF_DOUBLE_AB>();
+  //printf("nvl: %d\n",(int)nvl);
+  if constexpr (std::is_same_v<DEF_DOUBLE_AB, SSBLAS_SCHAR>||std::is_same_v<DEF_DOUBLE_AB, SSBLAS_UCHAR>) {
+    PTRUE_1B(p0);
+    for(INDEXINT j=0;j<remainN;j++){
+      const DEF_DOUBLE_AB* Bpad=&B[j*ldb];
+      DEF_DOUBLE_AB* tmp=(DEF_DOUBLE_AB*)&Blocal[0];
+      DEF_DOUBLE_AB* Blocalpad=&tmp[j*(ldbl*PACK_SIZE)];
+      INDEXINT i=0;
+      INDEXINT loop_num=0;
+      loop_num=(remainK-i)/(8*nvl);
+      //8回転
+      for(INDEXINT loop=0;loop<loop_num;loop++){
+        LD1B_ZXI(z0, p0, &Bpad[i], 0);
+        LD1B_ZXI(z1, p0, &Bpad[i], 1);
+        LD1B_ZXI(z2, p0, &Bpad[i], 2);
+        LD1B_ZXI(z3, p0, &Bpad[i], 3);
+        LD1B_ZXI(z4, p0, &Bpad[i], 4);
+        LD1B_ZXI(z5, p0, &Bpad[i], 5);
+        LD1B_ZXI(z6, p0, &Bpad[i], 6);
+        LD1B_ZXI(z7, p0, &Bpad[i], 7);
+        ST1B_ZXI(z0, p0, &Blocalpad[i], 0);
+        ST1B_ZXI(z1, p0, &Blocalpad[i], 1);
+        ST1B_ZXI(z2, p0, &Blocalpad[i], 2);
+        ST1B_ZXI(z3, p0, &Blocalpad[i], 3);
+        ST1B_ZXI(z4, p0, &Blocalpad[i], 4);
+        ST1B_ZXI(z5, p0, &Blocalpad[i], 5);
+        ST1B_ZXI(z6, p0, &Blocalpad[i], 6);
+        ST1B_ZXI(z7, p0, &Blocalpad[i], 7);
+        i+=8*nvl;
+      }
+      loop_num=(remainK-i)/(4*nvl);
+      //4回転
+      for(INDEXINT loop=0;loop<loop_num;loop++){
+        LD1B_ZXI(z0, p0, &Bpad[i], 0);
+        LD1B_ZXI(z1, p0, &Bpad[i], 1);
+        LD1B_ZXI(z2, p0, &Bpad[i], 2);
+        LD1B_ZXI(z3, p0, &Bpad[i], 3);
+        ST1B_ZXI(z0, p0, &Blocalpad[i], 0);
+        ST1B_ZXI(z1, p0, &Blocalpad[i], 1);
+        ST1B_ZXI(z2, p0, &Blocalpad[i], 2);
+        ST1B_ZXI(z3, p0, &Blocalpad[i], 3);
+        i+=4*nvl;
+      }
+      loop_num=(remainK-i)/(2*nvl);
+      //2回転
+      for(INDEXINT loop=0;loop<loop_num;loop++){
+        LD1B_ZXI(z0, p0, (&Bpad[i]), 0);
+        LD1B_ZXI(z1, p0, (&Bpad[i]), 1);
+        ST1B_ZXI(z0, p0, (&Blocalpad[i]), 0);
+        ST1B_ZXI(z1, p0, (&Blocalpad[i]), 1);
+        i+=(2*nvl);
+      }
+      loop_num=(remainK-i)/(1*nvl);
+      //1回転
+      for(INDEXINT loop=0;loop<loop_num;loop++){
+        LD1B_ZXI(z0, p0, (&Bpad[i]), 0);
+        ST1B_ZXI(z0, p0, (&Blocalpad[i]), 0);
+        i+=(1*nvl);
+      }
+      //端数
+      for(;i<remainK;i+=4){
+        Blocalpad[i+0]=i+0<remainK?Bpad[i+0]:0;
+        Blocalpad[i+1]=i+1<remainK?Bpad[i+1]:0;
+        Blocalpad[i+2]=i+2<remainK?Bpad[i+2]:0;
+        Blocalpad[i+3]=i+3<remainK?Bpad[i+3]:0;
+      }
     }
+  }
+  else{
+    for(INDEXINT j=0;j<remainN;j++){
+      for(INDEXINT i=0;i<remainK;i+=4){
+      ssblaschar4 tmp;
+      tmp.x=B[(i+0)+j*ldb];
+      tmp.y=i+1<remainK?B[(i+1)+j*ldb]:0;
+      tmp.z=i+2<remainK?B[(i+2)+j*ldb]:0;
+      tmp.w=i+3<remainK?B[(i+3)+j*ldb]:0;
+
+      Blocal[i/4+j*ldbl]=tmp;
+      }
+    }
+  }
 }
 
 //template<typename INDEXINT, typename T_SCALE, typename DEF_DOUBLE_AB, typename DEF_DOUBLE_C>
