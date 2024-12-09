@@ -126,6 +126,7 @@ void  Xgemm_CoreKernel_main
 
 	BatchMat<INDEXINT, const DEF_DOUBLE_AB> matB(&B, ldb);
 	BatchMat<INDEXINT, DEF_DOUBLE_C> matC(&C, ldc);
+    #if 0
 	for(INDEXINT n_index=MNB*(thread_id);n_index<N;n_index+=MNB*groupSize){
 		INDEXINT n_remain=n_index+MNB<N?MNB:N-n_index;
         {
@@ -142,6 +143,38 @@ void  Xgemm_CoreKernel_main
 					matC.ldx()
 				);          
 		}
+	}
+    #endif
+    const INDEXINT MAIN_N_PER_THREAD=N/groupSize;
+    if(MAIN_N_PER_THREAD>0){
+        INDEXINT n_index;
+        n_index=MAIN_N_PER_THREAD*thread_id;
+        Xgemm_CoreKernel<INDEXINT, T_SCALE, DEF_DOUBLE_AB, DEF_DOUBLE_C>
+        (
+            M,
+            MAIN_N_PER_THREAD,
+            k_remain_local,
+            alpha,
+            (const DEF_DOUBLE_C*)Ap,
+            (const DEF_DOUBLE_C*)matB.ptr(0, 0, n_index),
+            matB.ldx()/PACK_SIZE,
+            matC.ptr(0, 0, n_index),
+            matC.ldx()
+        );
+    }
+    for(INDEXINT n_index=MAIN_N_PER_THREAD*groupSize+(thread_id);n_index<N;n_index+=groupSize){
+        Xgemm_CoreKernel<INDEXINT, T_SCALE, DEF_DOUBLE_AB, DEF_DOUBLE_C>
+        (
+            M,
+            1,
+            k_remain_local,
+            alpha,
+            (const DEF_DOUBLE_C*)Ap,
+            (const DEF_DOUBLE_C*)matB.ptr(0, 0, n_index),
+            matB.ldx()/PACK_SIZE,
+            matC.ptr(0, 0, n_index),
+            matC.ldx()
+        );
 	}
 
 }
